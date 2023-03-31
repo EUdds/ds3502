@@ -20,7 +20,7 @@ int main()
     I2C i2c(D4, D5);
     DS3502 pot(&i2c, DS3502_DEFAULT_ADDR);
 
-    pot.set_wiper(50);
+    pot.set_wiper(0);
     printf("Wiper is %d\n\r", pot.get_wiper());
     // // main_telem.rise(&alertme);
     // // main_telem.fall(&alertme);   

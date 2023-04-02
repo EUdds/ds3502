@@ -5,22 +5,37 @@
 
 #include "mbed.h"
 #include "DS3502.h"
+#include "i2cwrapper.h"
+
+#define F767ZI
+
+#ifdef F767ZI
+#define PIN_SCL (PF_1)
+#define PIN_SDA (PF_0)
+#elif F303K8
+#define PIN_SDA (PB_7)
+#define PIN_SCL (PB_6)
+#endif // F767ZI
 
 
-static float curr_duty_cycle = 0.0f;
-InterruptIn main_telem(D5); // fixme
-AnalogOut accel(A5);
+
+// static float curr_duty_cycle = 0.0f;
+// // InterruptIn main_telem(D5); // fixme
+// AnalogOut accel(A5);
 
 
 
 
 int main()
 {
-    printf("\n\n\n");
-    I2C i2c(D4, D5);
+    // Clear the screen
+    printf("\033[2J\033[;H");
+    I2C i2c(PIN_SDA, PIN_SCL);
+    i2c.frequency(100000);
+    i2cdetect(&i2c);
     DS3502 pot(&i2c, DS3502_DEFAULT_ADDR);
 
-    pot.set_wiper(0);
+    pot.set_wiper(33);
     printf("Wiper is %d\n\r", pot.get_wiper());
     // // main_telem.rise(&alertme);
     // // main_telem.fall(&alertme);   

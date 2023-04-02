@@ -10,9 +10,11 @@ int readI2CWrapper(I2C *i2cBus, int addr, uint8_t reg, char buffer[], int numByt
     char writeBuffer[1] = {reg};
     // check if the I2C write and read throw errors. 
     if (i2cBus->write(addr, writeBuffer, 1) != 0) {
+        printf("Failed to write reg addr\n\r");
         return 1; 
     }
     if (i2cBus->read(addr, buffer, numBytes) != 0) {
+        printf("Failed to read reg\n\r");
         return 1; 
     }
     return 0; // no errors
@@ -34,7 +36,36 @@ int writeI2CWrapper(I2C *i2cBus, int addr, uint8_t reg, char data[], int numByte
     memcpy(newBuffer+1, data, numBytes);
     // check if the I2C write throws an error 
     if(i2cBus->write(addr, newBuffer, numBytes + 1)) {
+        printf("Failed to write\n\r");
         return 1;
     }
     return 0; // no errors 
+}
+
+void i2cdetect(I2C *i2cBus) {
+    char buf[10];
+    buf[0] = 0;
+    printf("\n     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f\n");
+    for (int adrs = 0; adrs < 0x80; adrs += 16) {
+        printf("%02x: ", adrs);
+        for (int i = 0; i < 16; i++) {
+            i2cBus->write(((adrs + i) << 1), buf, 1);
+            int ret = i2cBus->read(((adrs + i) << 1), buf, 2);
+            if ((adrs+i) == 0 || (adrs+i) == 1 || (adrs+i) == 2) {
+                printf("   ");
+                continue;
+            }
+            if ((adrs+i) >= 0x78) {
+                printf("\n");
+                break;
+            }
+            if (ret == 1) {
+                printf("-- ");
+            }
+            if (ret == 0) {
+                printf("%02x ", (adrs + i) << 1);
+            }
+        }
+        printf("\n");
+    }
 }
